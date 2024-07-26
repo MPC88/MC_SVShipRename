@@ -17,7 +17,7 @@ namespace MC_SVShipRename
     {
         public const string pluginGuid = "mc.starvalor.shiprename";
         public const string pluginName = "SV Ship Rename";
-        public const string pluginVersion = "1.0.1";
+        public const string pluginVersion = "1.0.0";
 
         private const string modSaveFolder = "/MCSVSaveData/";  // /SaveData/ sub folder
         private const string modSaveFilePrefix = "ShipNames_"; // modSaveFlePrefixNN.dat
@@ -45,7 +45,7 @@ namespace MC_SVShipRename
         [HarmonyPostfix]
         private static void InvSelectItem_Post(Inventory __instance, int itemIndex)
         {
-            CargoSystem cs = PlayerControl.inst.GetCargoSystem;
+            CargoSystem cs = (CargoSystem)AccessTools.Field(typeof(Inventory), "cs").GetValue(__instance);
             if (itemIndex < 0 || itemIndex >= cs.cargo.Count)
                 return;
 
@@ -65,9 +65,9 @@ namespace MC_SVShipRename
         [HarmonyPostfix]
         private static void InvRenameBtnPress_Post(Inventory __instance)
         {
-            CargoSystem cs = PlayerControl.inst.GetCargoSystem;
+            CargoSystem cs = (CargoSystem)AccessTools.Field(typeof(Inventory), "cs").GetValue(__instance);
             int selectedItem = (int)AccessTools.Field(typeof(Inventory), "selectedItem").GetValue(__instance);
-            
+
             if (selectedItem < 0 || selectedItem >= cs.cargo.Count || cs.cargo[selectedItem].itemType != 4 ||
                 (int)AccessTools.Field(typeof(Inventory), "cargoMode").GetValue(__instance) == 2)
                 return;
@@ -79,7 +79,7 @@ namespace MC_SVShipRename
         [HarmonyPrefix]
         private static void InvAddToFleet_Pre(Inventory __instance)
         {
-            CargoSystem cs = PlayerControl.inst.GetCargoSystem;
+            CargoSystem cs = (CargoSystem)AccessTools.Field(typeof(Inventory), "cs").GetValue(__instance);
             int selectedItem = (int)AccessTools.Field(typeof(Inventory), "selectedItem").GetValue(__instance);
 
             if (data == null || selectedItem < 0 || selectedItem >= cs.cargo.Count || cs.cargo[selectedItem].itemType != 4)
@@ -133,7 +133,7 @@ namespace MC_SVShipRename
 
             string curPlayerShipname = data.GetName(playerIndex, PersistentData.ID.IDType.Player);
 
-            CargoSystem cs = PlayerControl.inst.GetCargoSystem;
+            CargoSystem cs = (CargoSystem)AccessTools.Field(typeof(Inventory), "cs").GetValue(__instance);
             int selectedItem = (int)AccessTools.Field(typeof(Inventory), "selectedItem").GetValue(__instance);
 
             string newPlayerShipName = null;
@@ -141,7 +141,7 @@ namespace MC_SVShipRename
                 newPlayerShipName = data.GetName(cs.cargo[selectedItem].shipLoadoutID, PersistentData.ID.IDType.Loadout);
 
             if (curPlayerShipname != null)
-            {                
+            {
                 data.SetName(cs.cargo[selectedItem].shipLoadoutID, PersistentData.ID.IDType.Loadout, curPlayerShipname);
                 data.RemoveName(playerIndex, PersistentData.ID.IDType.Player);
             }
@@ -163,7 +163,7 @@ namespace MC_SVShipRename
             if (inventory == null)
                 return false;
 
-            CargoSystem cs = PlayerControl.inst.GetCargoSystem;
+            CargoSystem cs = (CargoSystem)AccessTools.Field(typeof(Inventory), "cs").GetValue(inventory);
             if (cs == null || newVar1 >= cs.cargo.Count)
                 return false;
 
@@ -181,7 +181,7 @@ namespace MC_SVShipRename
             int var1 = (int)AccessTools.Field(typeof(InputDialog), "var1").GetValue(__instance);
 
             Inventory inventory = (Inventory)AccessTools.Field(typeof(InputDialog), "inventory").GetValue(__instance);
-            CargoSystem cs = PlayerControl.inst.GetCargoSystem;
+            CargoSystem cs = (CargoSystem)AccessTools.Field(typeof(Inventory), "cs").GetValue(inventory);
             CargoItem ci = cs.cargo[var1];
             if (ci.qnt > 1 || ci.itemType != 4 || GameData.data == null && GameData.data.shipLoadouts == null)
                 return;
@@ -195,7 +195,7 @@ namespace MC_SVShipRename
 
             InputField inputfield = (InputField)AccessTools.Field(typeof(InputDialog), "textInput").GetValue(__instance);
             inputfield.text = name;
-            Text title = (Text)AccessTools.Field(typeof(InputDialog), "titleText").GetValue (__instance);
+            Text title = (Text)AccessTools.Field(typeof(InputDialog), "titleText").GetValue(__instance);
             title.text = Lang.Get(5, 320, "<b>" + name + "</b>");
         }
 
@@ -210,7 +210,7 @@ namespace MC_SVShipRename
             int var1 = (int)AccessTools.Field(typeof(InputDialog), "var1").GetValue(__instance);
 
             Inventory inventory = (Inventory)AccessTools.Field(typeof(InputDialog), "inventory").GetValue(__instance);
-            CargoSystem cs = PlayerControl.inst.GetCargoSystem;
+            CargoSystem cs = (CargoSystem)AccessTools.Field(typeof(Inventory), "cs").GetValue(inventory);
             CargoItem ci = cs.cargo[var1];
             if (ci.qnt > 1 || ci.itemType != 4 || GameData.data == null && GameData.data.shipLoadouts == null)
                 return;
@@ -263,7 +263,7 @@ namespace MC_SVShipRename
                 fleetShipText = fleetShipText + " <b>(" + __instance.editingFleetShip.CommanderName(12) + ")</b>";
             }
 
-            ((Text)AccessTools.Field(typeof(ShipInfo), "shipModelName").GetValue(__instance)).text = 
+            ((Text)AccessTools.Field(typeof(ShipInfo), "shipModelName").GetValue(__instance)).text =
                 ItemDB.GetRarityColor(ss.stats.modelData.rarity)
                 + "<b>" + name + "</b></color>" + fleetShipText;
         }
@@ -272,7 +272,7 @@ namespace MC_SVShipRename
         [HarmonyPostfix]
         private static void CargoItemGetNameWithQnt_Post(CargoItem __instance, ref string __result)
         {
-            if (data == null || __instance.itemType != 4 || 
+            if (data == null || __instance.itemType != 4 ||
                 GameData.data == null && GameData.data.shipLoadouts == null)
                 return;
 
@@ -301,12 +301,12 @@ namespace MC_SVShipRename
                 PlayerFleetMember fleety = aic.Char as PlayerFleetMember;
 
                 string name = null;
-                if(cfg_FleetRename.Value == FleetRenameMode.UseShipName)
+                if (cfg_FleetRename.Value == FleetRenameMode.UseShipName)
                     name = data.GetName(fleety.crewMemberID, PersistentData.ID.IDType.FleetCrewMember);
                 else if (cfg_FleetRename.Value == FleetRenameMode.Both)
                     name = data.GetName(fleety.crewMemberID, PersistentData.ID.IDType.FleetCrewMember) + " (" + fleety.name + ")";
                 if (name != null)
-                    ((Text)AccessTools.Field(typeof(HPBarControl), "mainText").GetValue(__instance)).text = name + " [" + aic.Char.level + "]";
+                    ((Text)AccessTools.Field(typeof(HPBarControl), "textName").GetValue(__instance)).text = name + " [" + aic.Char.level + "]";
             }
         }
 
@@ -396,16 +396,16 @@ namespace MC_SVShipRename
 
         public string GetName(int index, ID.IDType type)
         {
-            foreach(ID id in shipNames.Keys)
+            foreach (ID id in shipNames.Keys)
                 if (id.index == index && id.type == type)
                     return shipNames[id];
-            
+
             return null;
         }
 
         public void SetName(int index, ID.IDType type, string name)
         {
-            if(shipNames == null)
+            if (shipNames == null)
                 shipNames = new Dictionary<ID, string>();
 
             ID foundID = null;
