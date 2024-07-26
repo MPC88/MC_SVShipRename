@@ -302,6 +302,9 @@ namespace MC_SVShipRename
 
                 string name = data.GetName(fleety.crewMemberID, PersistentData.ID.IDType.FleetCrewMember);
                 
+                if (name == null) 
+                    return;
+
                 if (cfg_FleetRename.Value == FleetRenameMode.Both)
                     name += " (" + fleety.name + ")";
                 
