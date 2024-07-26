@@ -300,13 +300,12 @@ namespace MC_SVShipRename
 
                 PlayerFleetMember fleety = aic.Char as PlayerFleetMember;
 
-                string name = null;
-                if(cfg_FleetRename.Value == FleetRenameMode.UseShipName)
-                    name = data.GetName(fleety.crewMemberID, PersistentData.ID.IDType.FleetCrewMember);
-                else if (cfg_FleetRename.Value == FleetRenameMode.Both)
-                    name = data.GetName(fleety.crewMemberID, PersistentData.ID.IDType.FleetCrewMember) + " (" + fleety.name + ")";
-                if (name != null)
-                    ((Text)AccessTools.Field(typeof(HPBarControl), "mainText").GetValue(__instance)).text = name + " [" + aic.Char.level + "]";
+                string name = data.GetName(fleety.crewMemberID, PersistentData.ID.IDType.FleetCrewMember);
+                
+                if (cfg_FleetRename.Value == FleetRenameMode.Both)
+                    name += " (" + fleety.name + ")";
+                
+                ((Text)AccessTools.Field(typeof(HPBarControl), "mainText").GetValue(__instance)).text = name + " [" + aic.Char.level + "]";
             }
         }
 
