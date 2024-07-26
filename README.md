@@ -1,4 +1,4 @@
-# MC_SVRename 
+# MC_SVShipRename 
   
 Backup your save before using any mods.  
   
