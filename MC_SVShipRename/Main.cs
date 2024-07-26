@@ -301,12 +301,14 @@ namespace MC_SVShipRename
                 PlayerFleetMember fleety = aic.Char as PlayerFleetMember;
 
                 string name = null;
-                if (cfg_FleetRename.Value == FleetRenameMode.UseShipName)
-                    name = data.GetName(fleety.crewMemberID, PersistentData.ID.IDType.FleetCrewMember);
-                else if (cfg_FleetRename.Value == FleetRenameMode.Both)
-                    name = data.GetName(fleety.crewMemberID, PersistentData.ID.IDType.FleetCrewMember) + " (" + fleety.name + ")";
-                if (name != null)
-                    ((Text)AccessTools.Field(typeof(HPBarControl), "textName").GetValue(__instance)).text = name + " [" + aic.Char.level + "]";
+                name = data.GetName(fleety.crewMemberID, PersistentData.ID.IDType.FleetCrewMember);
+                if (name == null)
+                    return;
+
+                if (cfg_FleetRename.Value == FleetRenameMode.Both)
+                    name += " (" + fleety.name + ")";
+                
+                ((Text)AccessTools.Field(typeof(HPBarControl), "textName").GetValue(__instance)).text = name + " [" + aic.Char.level + "]";
             }
         }
 
