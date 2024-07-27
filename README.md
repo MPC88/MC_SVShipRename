@@ -24,3 +24,4 @@ Fleet Ship Name Display Mode allows you to change what name is shown on fleet me
 - UseShipName shows the ship name if it has been renamed with this mod.  
 - Both shows the ship name and the captain's name in parenthesis (loooooooong).  
   
+Fleet List Name Display Mode changes how fleet member names are shown in the fleet list (top right).  Options are the same as above.  
