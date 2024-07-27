@@ -3,7 +3,6 @@ using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 using UnityEngine.UI;
@@ -27,6 +26,7 @@ namespace MC_SVShipRename
 
         public enum FleetRenameMode { UseCrewName, UseShipName, Both };
         public static ConfigEntry<FleetRenameMode> cfg_FleetRename;
+        public static ConfigEntry<FleetRenameMode> cfg_FleetSlotRename;
 
         private static PersistentData data;
         private static string tempName = null;
@@ -39,6 +39,10 @@ namespace MC_SVShipRename
                 "Fleet Ship Name Display Mode",
                 FleetRenameMode.UseCrewName,
                 "Change the name shown above fleet ships.  'UseCrewName' is vanilla and shows the captain's name.  'UseShipName' will use the ship's name if renamed with this mod.  'Both' will show both crew and ship name if renamed with this mod");
+            cfg_FleetSlotRename = Config.Bind<FleetRenameMode>("Config",
+                "Fleet List Name Display Mode",
+                FleetRenameMode.UseCrewName,
+                "Change the name shown in the fleet list.  'UseCrewName' is vanilla and shows the captain's name.  'UseShipName' will use the ship's name if renamed with this mod.  'Both' will show both crew and ship name if renamed with this mod");
         }
 
         [HarmonyPatch(typeof(Inventory), nameof(Inventory.SelectItem))]
@@ -115,6 +119,33 @@ namespace MC_SVShipRename
                 data.RemoveName(playerFleetMember.crewMemberID, PersistentData.ID.IDType.FleetCrewMember);
                 data.SetName(GameData.data.shipLoadouts.Count > 0 ? GameData.data.shipLoadouts[GameData.data.shipLoadouts.Count - 1].id : 0, PersistentData.ID.IDType.Loadout, name);
             }
+        }
+
+        [HarmonyPatch(typeof(FleetMemberSlot), nameof(FleetMemberSlot.Setup))]
+        [HarmonyPostfix]
+        private static void FleetSlotSetup_Post(FleetMemberSlot __instance, Transform mercTrans)
+        {
+            if (data == null || cfg_FleetSlotRename.Value == FleetRenameMode.UseCrewName)
+                return;
+
+            if (!(__instance.aiMercChar is PlayerFleetMember))
+                return;
+
+            PlayerFleetMember pfm = __instance.aiMercChar as PlayerFleetMember;
+
+            string name;
+            name = data.GetName(pfm.crewMemberID, PersistentData.ID.IDType.FleetCrewMember);
+            if (name.IsNullOrWhiteSpace())
+                return;
+
+            if (cfg_FleetSlotRename.Value == FleetRenameMode.Both)
+                name += " (" + pfm.CommanderName(14, false) + ")";
+
+            string colour = ColorSys.silver;
+            if(mercTrans == null)
+                colour = ColorSys.mediumGray;
+
+            ((Text)AccessTools.Field(typeof(FleetMemberSlot), "nameText").GetValue(__instance)).text = colour + "<b>" + name + "</b></color>";
         }
 
         [HarmonyPatch(typeof(GameDataInfo), nameof(GameDataInfo.DeleteShipLoadout))]
@@ -298,15 +329,15 @@ namespace MC_SVShipRename
                 if (aic != null && !(aic.Char is PlayerFleetMember))
                     return;
 
-                PlayerFleetMember fleety = aic.Char as PlayerFleetMember;
+                PlayerFleetMember pfm = aic.Char as PlayerFleetMember;
 
                 string name = null;
-                name = data.GetName(fleety.crewMemberID, PersistentData.ID.IDType.FleetCrewMember);
+                name = data.GetName(pfm.crewMemberID, PersistentData.ID.IDType.FleetCrewMember);
                 if (name == null)
                     return;
 
                 if (cfg_FleetRename.Value == FleetRenameMode.Both)
-                    name += " (" + fleety.name + ")";
+                    name += " (" + pfm.CommanderName(14, false) + ")";
                 
                 ((Text)AccessTools.Field(typeof(HPBarControl), "textName").GetValue(__instance)).text = name + " [" + aic.Char.level + "]";
             }
