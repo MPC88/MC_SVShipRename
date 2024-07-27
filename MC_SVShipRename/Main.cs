@@ -17,7 +17,7 @@ namespace MC_SVShipRename
     {
         public const string pluginGuid = "mc.starvalor.shiprename";
         public const string pluginName = "SV Ship Rename";
-        public const string pluginVersion = "1.0.2";
+        public const string pluginVersion = "1.0.3";
 
         private const string modSaveFolder = "/MCSVSaveData/";  // /SaveData/ sub folder
         private const string modSaveFilePrefix = "ShipNames_"; // modSaveFlePrefixNN.dat
@@ -41,7 +41,7 @@ namespace MC_SVShipRename
                 FleetRenameMode.UseCrewName,
                 "Change the name shown above fleet ships.  'UseCrewName' is vanilla and shows the captain's name.  'UseShipName' will use the ship's name if renamed with this mod.  'Both' will show both crew and ship name if renamed with this mod");
             cfg_FleetSlotRename = Config.Bind<FleetRenameMode>("Config",
-                "Fleet list Name Display Mode",
+                "Fleet List Name Display Mode",
                 FleetRenameMode.UseCrewName,
                 "Change the name shown in the fleet list.  'UseCrewName' is vanilla and shows the captain's name.  'UseShipName' will use the ship's name if renamed with this mod.  'Both' will show both crew and ship name if renamed with this mod");
         }
