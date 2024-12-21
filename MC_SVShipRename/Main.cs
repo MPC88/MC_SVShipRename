@@ -465,7 +465,8 @@ namespace MC_SVShipRename
                 }
             }
 
-            shipNames.Remove(foundID);
+            if(foundID != null)
+                shipNames.Remove(foundID);
         }
 
         [Serializable]
