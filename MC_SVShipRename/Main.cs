@@ -16,7 +16,7 @@ namespace MC_SVShipRename
     {
         public const string pluginGuid = "mc.starvalor.shiprename";
         public const string pluginName = "SV Ship Rename";
-        public const string pluginVersion = "1.0.3";
+        public const string pluginVersion = "1.0.4";
 
         private const string modSaveFolder = "/MCSVSaveData/";  // /SaveData/ sub folder
         private const string modSaveFilePrefix = "ShipNames_"; // modSaveFlePrefixNN.dat
@@ -464,7 +464,8 @@ namespace MC_SVShipRename
                 }
             }
 
-            shipNames.Remove(foundID);
+            if(foundID != null)
+                shipNames.Remove(foundID);
         }
 
         [Serializable]
